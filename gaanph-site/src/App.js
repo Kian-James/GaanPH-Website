@@ -2,39 +2,40 @@ import { useState, useEffect, useRef } from "react";
 
 const APP_URL = "https://gaanph.onrender.com";
 
-/* ── Palette ── */
 const G = {
   dark:    "#05201a",
   darker:  "#03130f",
   primary: "#0f6e56",
   mid:     "#1d9e75",
   light:   "#34d399",
-  pale:    "#ecfdf5",
   white:   "#ffffff",
   gray:    "#6b7280",
   text:    "#e2f5ed",
   muted:   "#9bcfbc",
 };
 
-/* ── Tiny hook for intersection observer ── */
-function useVisible(threshold = 0.15) {
+function useVisible(threshold = 0.12) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold });
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      { threshold }
+    );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
   return [ref, visible];
 }
 
-function Reveal({ children, delay = 0, className = "" }) {
+function Reveal({ children, delay = 0, style = {} }) {
   const [ref, visible] = useVisible();
   return (
-    <div ref={ref} className={className} style={{
+    <div ref={ref} style={{
       opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(32px)",
-      transition: `opacity 0.7s ease ${delay}s, transform 0.7s ease ${delay}s`,
+      transform: visible ? "translateY(0)" : "translateY(28px)",
+      transition: `opacity 0.65s ease ${delay}s, transform 0.65s ease ${delay}s`,
+      ...style,
     }}>
       {children}
     </div>
@@ -44,49 +45,119 @@ function Reveal({ children, delay = 0, className = "" }) {
 /* ── Nav ── */
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  const links = ["About", "Features", "How It Works", "Team"];
+
   return (
-    <nav style={{
-      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "0 40px", height: "64px",
-      background: scrolled ? "rgba(3,19,15,0.92)" : "transparent",
-      backdropFilter: scrolled ? "blur(12px)" : "none",
-      borderBottom: scrolled ? `1px solid rgba(29,158,117,0.15)` : "none",
-      transition: "all 0.3s ease",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <span style={{ fontSize: "22px" }}>🌿</span>
-        <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "20px", color: G.white, letterSpacing: "-0.5px" }}>
-          Gaan<span style={{ color: G.light }}>PH</span>
-        </span>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
-        {["About", "Features", "How It Works", "Team"].map(l => (
-          <a key={l} href={`#${l.toLowerCase().replace(/ /g,"-")}`} style={{
-            color: G.muted, fontSize: "14px", textDecoration: "none", fontFamily: "'DM Sans', sans-serif",
-            transition: "color 0.2s",
+    <>
+      <nav style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 clamp(20px, 5vw, 40px)", height: "64px",
+        background: scrolled || open ? "rgba(3,19,15,0.97)" : "transparent",
+        backdropFilter: scrolled || open ? "blur(14px)" : "none",
+        borderBottom: scrolled ? "1px solid rgba(29,158,117,0.15)" : "none",
+        transition: "all 0.3s ease",
+      }}>
+        {/* Logo */}
+        <a href="#" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+          <span style={{ fontSize: "22px" }}>🌿</span>
+          <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "20px", color: G.white, letterSpacing: "-0.5px" }}>
+            Gaan<span style={{ color: G.light }}>PH</span>
+          </span>
+        </a>
+
+        {/* Desktop links */}
+        <div className="nav-desktop" style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+          {links.map(l => (
+            <a key={l} href={`#${l.toLowerCase().replace(/ /g, "-")}`} style={{
+              color: G.muted, fontSize: "14px", textDecoration: "none",
+              fontFamily: "'DM Sans', sans-serif", transition: "color 0.2s",
+            }}
+            onMouseEnter={e => e.target.style.color = G.light}
+            onMouseLeave={e => e.target.style.color = G.muted}
+            >{l}</a>
+          ))}
+          <a href={APP_URL} target="_blank" rel="noreferrer" style={{
+            background: G.primary, color: G.white, padding: "8px 20px",
+            borderRadius: "10px", fontSize: "14px", fontWeight: 600,
+            textDecoration: "none", fontFamily: "'DM Sans', sans-serif",
+            transition: "background 0.2s",
           }}
-          onMouseEnter={e => e.target.style.color = G.light}
-          onMouseLeave={e => e.target.style.color = G.muted}
-          >{l}</a>
-        ))}
-        <a href={APP_URL} target="_blank" rel="noreferrer" style={{
-          background: G.primary, color: G.white, padding: "8px 20px",
-          borderRadius: "10px", fontSize: "14px", fontWeight: 600,
-          textDecoration: "none", fontFamily: "'DM Sans', sans-serif",
-          transition: "background 0.2s",
-        }}
-        onMouseEnter={e => e.target.style.background = G.mid}
-        onMouseLeave={e => e.target.style.background = G.primary}
-        >Launch App →</a>
+          onMouseEnter={e => e.target.style.background = G.mid}
+          onMouseLeave={e => e.target.style.background = G.primary}
+          >Launch App →</a>
+        </div>
+
+        {/* Hamburger */}
+        <button
+          className="nav-hamburger"
+          onClick={() => setOpen(o => !o)}
+          aria-label="Toggle menu"
+          style={{
+            background: "none", border: "none", cursor: "pointer",
+            display: "flex", flexDirection: "column", gap: "5px",
+            padding: "8px",
+          }}>
+          {[0, 1, 2].map(i => (
+            <span key={i} style={{
+              display: "block", width: "24px", height: "2px",
+              background: G.light, borderRadius: "2px",
+              transition: "all 0.3s ease",
+              transform: open
+                ? i === 0 ? "translateY(7px) rotate(45deg)"
+                : i === 1 ? "scaleX(0)"
+                : "translateY(-7px) rotate(-45deg)"
+                : "none",
+            }} />
+          ))}
+        </button>
+      </nav>
+
+      {/* Mobile drawer */}
+      <div style={{
+        position: "fixed", top: "64px", left: 0, right: 0, zIndex: 190,
+        background: "rgba(3,19,15,0.97)", backdropFilter: "blur(14px)",
+        padding: open ? "24px clamp(20px,5vw,40px) 32px" : "0 clamp(20px,5vw,40px)",
+        overflow: "hidden",
+        maxHeight: open ? "400px" : "0",
+        transition: "max-height 0.35s ease, padding 0.35s ease",
+        borderBottom: open ? "1px solid rgba(29,158,117,0.15)" : "none",
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {links.map(l => (
+            <a key={l} href={`#${l.toLowerCase().replace(/ /g, "-")}`}
+              onClick={() => setOpen(false)}
+              style={{
+                color: G.muted, fontSize: "17px", textDecoration: "none",
+                fontFamily: "'DM Sans', sans-serif", padding: "10px 0",
+                borderBottom: "1px solid rgba(29,158,117,0.08)",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={e => e.target.style.color = G.light}
+              onMouseLeave={e => e.target.style.color = G.muted}
+            >{l}</a>
+          ))}
+          <a href={APP_URL} target="_blank" rel="noreferrer"
+            onClick={() => setOpen(false)}
+            style={{
+              marginTop: "12px", background: `linear-gradient(135deg, ${G.primary}, ${G.mid})`,
+              color: G.white, padding: "14px 24px", borderRadius: "12px",
+              fontSize: "16px", fontWeight: 700, textDecoration: "none",
+              fontFamily: "'DM Sans', sans-serif", textAlign: "center",
+            }}>
+            🌿 Launch GaanPH
+          </a>
+        </div>
       </div>
-    </nav>
+    </>
   );
 }
 
@@ -95,13 +166,12 @@ function Hero() {
   return (
     <section style={{
       minHeight: "100vh", display: "flex", alignItems: "center",
-      padding: "100px 40px 60px",
+      padding: "100px clamp(20px, 5vw, 40px) 60px",
       background: `radial-gradient(ellipse 80% 60% at 60% 40%, rgba(29,158,117,0.12) 0%, transparent 70%),
                    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(15,110,86,0.08) 0%, transparent 60%),
                    ${G.darker}`,
       position: "relative", overflow: "hidden",
     }}>
-      {/* grid overlay */}
       <div style={{
         position: "absolute", inset: 0, zIndex: 0,
         backgroundImage: `linear-gradient(rgba(29,158,117,0.04) 1px, transparent 1px),
@@ -109,33 +179,46 @@ function Hero() {
         backgroundSize: "48px 48px",
       }} />
 
-      <div style={{ maxWidth: "1200px", margin: "0 auto", width: "100%", display: "flex", alignItems: "center", gap: "80px", position: "relative", zIndex: 1 }}>
+      <div style={{
+        maxWidth: "1200px", margin: "0 auto", width: "100%",
+        display: "flex", alignItems: "center",
+        gap: "clamp(32px, 6vw, 80px)",
+        flexWrap: "wrap",
+        position: "relative", zIndex: 1,
+      }}>
         {/* Left */}
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: "1 1 300px", minWidth: 0 }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: "8px",
             background: "rgba(15,110,86,0.15)", border: "1px solid rgba(52,211,153,0.25)",
             borderRadius: "20px", padding: "5px 14px", marginBottom: "28px",
           }}>
             <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: G.light, display: "inline-block", animation: "pulse 2s infinite" }} />
-            <span style={{ fontSize: "12px", color: G.light, fontFamily: "'DM Sans', sans-serif", fontWeight: 500, letterSpacing: "0.05em" }}>FREE CHILD HEALTH SCREENING TOOL</span>
+            <span style={{ fontSize: "clamp(10px,2.5vw,12px)", color: G.light, fontFamily: "'DM Sans', sans-serif", fontWeight: 500, letterSpacing: "0.05em" }}>FREE CHILD HEALTH SCREENING TOOL</span>
           </div>
 
-          <h1 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(48px, 6vw, 80px)", lineHeight: 1.05, margin: "0 0 24px", color: G.white, letterSpacing: "-2px" }}>
+          <h1 style={{
+            fontFamily: "'Syne', sans-serif", fontWeight: 800,
+            fontSize: "clamp(40px, 7vw, 80px)", lineHeight: 1.05,
+            margin: "0 0 24px", color: G.white, letterSpacing: "-2px",
+          }}>
             Child Nutrition.<br />
             <span style={{ color: G.light }}>Data-Driven.</span><br />
             Filipino.
           </h1>
 
-          <p style={{ fontSize: "18px", color: G.muted, lineHeight: 1.7, maxWidth: "480px", margin: "0 0 40px", fontFamily: "'DM Sans', sans-serif" }}>
+          <p style={{
+            fontSize: "clamp(15px, 2vw, 18px)", color: G.muted, lineHeight: 1.7,
+            maxWidth: "480px", margin: "0 0 40px", fontFamily: "'DM Sans', sans-serif",
+          }}>
             GaanPH uses WHO growth standards and machine learning to screen Filipino children aged 0–5 for malnutrition — free, fast, and purpose-built for barangay health workers across the Philippines.
           </p>
 
-          <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             <a href={APP_URL} target="_blank" rel="noreferrer" style={{
               background: `linear-gradient(135deg, ${G.primary}, ${G.mid})`,
-              color: G.white, padding: "14px 32px", borderRadius: "12px",
-              fontSize: "16px", fontWeight: 700, textDecoration: "none",
+              color: G.white, padding: "14px clamp(20px,4vw,32px)", borderRadius: "12px",
+              fontSize: "clamp(14px,2vw,16px)", fontWeight: 700, textDecoration: "none",
               fontFamily: "'DM Sans', sans-serif",
               boxShadow: `0 8px 32px rgba(15,110,86,0.35)`,
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -143,75 +226,66 @@ function Hero() {
             }}
             onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 12px 40px rgba(15,110,86,0.45)`; }}
             onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 8px 32px rgba(15,110,86,0.35)`; }}
-            >
-              🌿 Launch GaanPH
-            </a>
+            >🌿 Launch GaanPH</a>
+
             <a href="#how-it-works" style={{
               background: "rgba(255,255,255,0.06)", color: G.text,
-              padding: "14px 32px", borderRadius: "12px",
-              fontSize: "16px", fontWeight: 600, textDecoration: "none",
+              padding: "14px clamp(20px,4vw,32px)", borderRadius: "12px",
+              fontSize: "clamp(14px,2vw,16px)", fontWeight: 600, textDecoration: "none",
               fontFamily: "'DM Sans', sans-serif",
               border: "1px solid rgba(255,255,255,0.1)",
               transition: "background 0.2s",
             }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
             onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
-            >
-              How does it work?
-            </a>
+            >How does it work?</a>
           </div>
 
           {/* Stats row */}
-          <div style={{ display: "flex", gap: "40px", marginTop: "56px", paddingTop: "40px", borderTop: "1px solid rgba(29,158,117,0.15)" }}>
+          <div style={{
+            display: "flex", gap: "clamp(20px,4vw,40px)", flexWrap: "wrap",
+            marginTop: "48px", paddingTop: "32px",
+            borderTop: "1px solid rgba(29,158,117,0.15)",
+          }}>
             {[["91%", "Accuracy"], ["5", "WHO Classes"], ["17", "Regions"], ["0–5", "Years Old"]].map(([n, l]) => (
               <div key={l}>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "28px", color: G.light }}>{n}</div>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(22px,4vw,28px)", color: G.light }}>{n}</div>
                 <div style={{ fontSize: "12px", color: G.muted, fontFamily: "'DM Sans', sans-serif", marginTop: "2px" }}>{l}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right — App mockup */}
-        <div style={{ flex: "0 0 400px", position: "relative" }}>
-          {/* Glow */}
+        {/* Right — App mockup — hidden on small screens via class */}
+        <div className="hero-mockup" style={{ flex: "0 1 360px", position: "relative" }}>
           <div style={{
             position: "absolute", top: "50%", left: "50%",
             transform: "translate(-50%,-50%)",
-            width: "320px", height: "320px", borderRadius: "50%",
+            width: "280px", height: "280px", borderRadius: "50%",
             background: `radial-gradient(circle, rgba(29,158,117,0.25) 0%, transparent 70%)`,
             filter: "blur(20px)", zIndex: 0,
           }} />
-          {/* Phone frame */}
           <div style={{
             position: "relative", zIndex: 1,
             background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(52,211,153,0.2)",
-            borderRadius: "28px", overflow: "hidden",
+            borderRadius: "24px", overflow: "hidden",
             boxShadow: "0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
-            padding: "32px 28px",
+            padding: "28px 24px",
           }}>
-            {/* Header */}
-            <div style={{ textAlign: "center", marginBottom: "24px" }}>
-              <div style={{ fontSize: "36px", marginBottom: "6px" }}>🌿</div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "22px", color: G.white }}>GaanPH</div>
+            <div style={{ textAlign: "center", marginBottom: "20px" }}>
+              <div style={{ fontSize: "32px", marginBottom: "4px" }}>🌿</div>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "20px", color: G.white }}>GaanPH</div>
               <div style={{ fontSize: "11px", color: G.muted, fontFamily: "'DM Sans', sans-serif" }}>Child Nutrition Screening</div>
             </div>
-            {/* Mock form */}
-            {[
-              ["👶 Age", "1 year, 6 months"],
-              ["⚖️ Weight", "9.5 kg"],
-              ["📏 Height", "75.0 cm"],
-              ["📍 Region", "Region III"],
-            ].map(([l, v]) => (
-              <div key={l} style={{ marginBottom: "10px" }}>
-                <div style={{ fontSize: "10px", color: G.muted, fontFamily: "'DM Sans', sans-serif", marginBottom: "3px" }}>{l}</div>
-                <div style={{ background: "rgba(15,110,86,0.12)", border: "1px solid rgba(52,211,153,0.15)", borderRadius: "8px", padding: "8px 12px", fontSize: "13px", color: G.text, fontFamily: "'DM Sans', sans-serif" }}>{v}</div>
+            {[["👶 Age", "1 year, 6 months"], ["⚖️ Weight", "9.5 kg"], ["📏 Height", "75.0 cm"], ["📍 Region", "Region III"]].map(([l, v]) => (
+              <div key={l} style={{ marginBottom: "9px" }}>
+                <div style={{ fontSize: "10px", color: G.muted, fontFamily: "'DM Sans', sans-serif", marginBottom: "2px" }}>{l}</div>
+                <div style={{ background: "rgba(15,110,86,0.12)", border: "1px solid rgba(52,211,153,0.15)", borderRadius: "8px", padding: "7px 11px", fontSize: "13px", color: G.text, fontFamily: "'DM Sans', sans-serif" }}>{v}</div>
               </div>
             ))}
-            {/* Result preview */}
             <div style={{
-              marginTop: "16px", background: "rgba(52,211,153,0.1)",
+              marginTop: "14px", background: "rgba(52,211,153,0.1)",
               border: "1px solid rgba(52,211,153,0.3)", borderRadius: "10px",
               padding: "12px 14px", textAlign: "center",
             }}>
@@ -222,11 +296,6 @@ function Hero() {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-      `}</style>
     </section>
   );
 }
@@ -234,37 +303,36 @@ function Hero() {
 /* ── About ── */
 function About() {
   return (
-    <section id="about" style={{ background: G.dark, padding: "100px 40px" }}>
+    <section id="about" style={{ background: G.dark, padding: "clamp(60px,10vw,100px) clamp(20px,5vw,40px)" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         <Reveal>
           <div style={{ display: "inline-block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: G.light, fontFamily: "'DM Sans', sans-serif", background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)", padding: "4px 12px", borderRadius: "20px", marginBottom: "16px" }}>THE PROBLEM</div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", color: G.white, letterSpacing: "-1px", margin: "0 0 20px", lineHeight: 1.1 }}>
-            1 in 3 Filipino children<br />
-            <span style={{ color: G.light }}>are stunted.</span>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 5vw, 52px)", color: G.white, letterSpacing: "-1px", margin: "0 0 20px", lineHeight: 1.1 }}>
+            1 in 3 Filipino children<br /><span style={{ color: G.light }}>are stunted.</span>
           </h2>
-          <p style={{ fontSize: "17px", color: G.muted, lineHeight: 1.8, maxWidth: "600px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 60px" }}>
+          <p style={{ fontSize: "clamp(14px,2vw,17px)", color: G.muted, lineHeight: 1.8, maxWidth: "600px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 48px" }}>
             According to the 2023 National Nutrition Survey (NNS) by FNRI-DOST, malnutrition remains one of the most severe child health problems in the Philippines — especially in rural provinces and BARMM. Health workers urgently need a simple, reliable tool to detect it early.
           </p>
         </Reveal>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px" }}>
           {[
             { icon: "📊", stat: "31.8%", label: "of children under 5 are stunted", source: "NNS 2023 · FNRI-DOST" },
             { icon: "🏥", stat: "~6,500", label: "barangay health centers lack a digital screening tool", source: "DOH data" },
             { icon: "⏱️", stat: "<2 min", label: "to screen a child using GaanPH", source: "GaanPH" },
-          ].map(({ icon, stat, label, source }) => (
-            <Reveal key={stat} delay={0.1}>
+          ].map(({ icon, stat, label, source }, i) => (
+            <Reveal key={stat} delay={i * 0.1}>
               <div style={{
                 background: "rgba(15,110,86,0.08)", border: "1px solid rgba(29,158,117,0.15)",
-                borderRadius: "20px", padding: "32px 28px",
+                borderRadius: "20px", padding: "28px 24px", height: "100%",
                 transition: "border-color 0.2s, transform 0.2s",
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(52,211,153,0.35)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(29,158,117,0.15)"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                <div style={{ fontSize: "32px", marginBottom: "16px" }}>{icon}</div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "40px", color: G.light, lineHeight: 1 }}>{stat}</div>
-                <div style={{ fontSize: "14px", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6, margin: "8px 0 12px" }}>{label}</div>
+                <div style={{ fontSize: "28px", marginBottom: "14px" }}>{icon}</div>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px,5vw,40px)", color: G.light, lineHeight: 1 }}>{stat}</div>
+                <div style={{ fontSize: "14px", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6, margin: "8px 0 10px" }}>{label}</div>
                 <div style={{ fontSize: "11px", color: "rgba(155,207,188,0.5)", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, letterSpacing: "0.05em" }}>{source}</div>
               </div>
             </Reveal>
@@ -287,34 +355,34 @@ function Features() {
   ];
 
   return (
-    <section id="features" style={{ background: G.darker, padding: "100px 40px" }}>
+    <section id="features" style={{ background: G.darker, padding: "clamp(60px,10vw,100px) clamp(20px,5vw,40px)" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <Reveal style={{ textAlign: "center", marginBottom: "64px" }}>
-          <div style={{ textAlign: "center", marginBottom: "64px" }}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
             <div style={{ display: "inline-block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: G.light, fontFamily: "'DM Sans', sans-serif", background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)", padding: "4px 12px", borderRadius: "20px", marginBottom: "16px" }}>FEATURES</div>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", color: G.white, letterSpacing: "-1px", margin: "0 0 16px" }}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 5vw, 52px)", color: G.white, letterSpacing: "-1px", margin: "0 0 16px" }}>
               Built for <span style={{ color: G.light }}>real-world needs.</span>
             </h2>
-            <p style={{ fontSize: "16px", color: G.muted, fontFamily: "'DM Sans', sans-serif", maxWidth: "500px", margin: "0 auto", lineHeight: 1.7 }}>
+            <p style={{ fontSize: "clamp(14px,2vw,16px)", color: G.muted, fontFamily: "'DM Sans', sans-serif", maxWidth: "500px", margin: "0 auto", lineHeight: 1.7 }}>
               Not just another screening tool — a practical instrument designed for barangay health workers and rural health units across the Philippines.
             </p>
           </div>
         </Reveal>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "18px" }}>
           {features.map(({ icon, title, sub, desc }, i) => (
-            <Reveal key={title} delay={i * 0.07}>
+            <Reveal key={title} delay={i * 0.06}>
               <div style={{
                 background: "rgba(15,110,86,0.06)", border: "1px solid rgba(29,158,117,0.12)",
-                borderRadius: "18px", padding: "28px 24px", height: "100%",
+                borderRadius: "18px", padding: "26px 22px",
                 transition: "all 0.25s ease", cursor: "default",
               }}
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(15,110,86,0.12)"; e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "rgba(15,110,86,0.06)"; e.currentTarget.style.borderColor = "rgba(29,158,117,0.12)"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                <div style={{ fontSize: "28px", marginBottom: "16px" }}>{icon}</div>
-                <div style={{ fontSize: "11px", color: G.light, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'DM Sans', sans-serif", marginBottom: "6px" }}>{sub.toUpperCase()}</div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "18px", color: G.white, marginBottom: "10px" }}>{title}</div>
+                <div style={{ fontSize: "26px", marginBottom: "14px" }}>{icon}</div>
+                <div style={{ fontSize: "11px", color: G.light, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'DM Sans', sans-serif", marginBottom: "5px" }}>{sub.toUpperCase()}</div>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "17px", color: G.white, marginBottom: "9px" }}>{title}</div>
                 <div style={{ fontSize: "13px", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7 }}>{desc}</div>
               </div>
             </Reveal>
@@ -335,22 +403,21 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" style={{ background: G.dark, padding: "100px 40px" }}>
+    <section id="how-it-works" style={{ background: G.dark, padding: "clamp(60px,10vw,100px) clamp(20px,5vw,40px)" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         <Reveal>
           <div style={{ display: "inline-block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: G.light, fontFamily: "'DM Sans', sans-serif", background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)", padding: "4px 12px", borderRadius: "20px", marginBottom: "16px" }}>HOW IT WORKS</div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", color: G.white, letterSpacing: "-1px", margin: "0 0 64px", lineHeight: 1.1 }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 5vw, 52px)", color: G.white, letterSpacing: "-1px", margin: "0 0 56px", lineHeight: 1.1 }}>
             Simple. Fast.<br /><span style={{ color: G.light }}>Reliable.</span>
           </h2>
         </Reveal>
 
         <div style={{ position: "relative" }}>
-          {/* Connecting line */}
           <div style={{ position: "absolute", left: "27px", top: "40px", bottom: "40px", width: "2px", background: `linear-gradient(to bottom, ${G.primary}, transparent)`, zIndex: 0 }} />
 
           {steps.map(({ n, title, desc }, i) => (
             <Reveal key={n} delay={i * 0.1}>
-              <div style={{ display: "flex", gap: "28px", marginBottom: "48px", position: "relative", zIndex: 1 }}>
+              <div style={{ display: "flex", gap: "24px", marginBottom: "40px", position: "relative", zIndex: 1 }}>
                 <div style={{
                   width: "56px", height: "56px", borderRadius: "50%", flexShrink: 0,
                   background: i === 0 ? `linear-gradient(135deg, ${G.primary}, ${G.mid})` : "rgba(15,110,86,0.15)",
@@ -358,12 +425,10 @@ function HowItWorks() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "14px",
                   color: i === 0 ? G.white : G.muted,
-                }}>
-                  {n}
-                </div>
-                <div style={{ paddingTop: "12px" }}>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "20px", color: G.white, marginBottom: "8px" }}>{title}</div>
-                  <div style={{ fontSize: "15px", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7, maxWidth: "560px" }}>{desc}</div>
+                }}>{n}</div>
+                <div style={{ paddingTop: "10px", flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "clamp(16px,2.5vw,20px)", color: G.white, marginBottom: "8px" }}>{title}</div>
+                  <div style={{ fontSize: "clamp(13px,2vw,15px)", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7 }}>{desc}</div>
                 </div>
               </div>
             </Reveal>
@@ -385,34 +450,35 @@ function Classes() {
   ];
 
   return (
-    <section style={{ background: G.darker, padding: "100px 40px" }}>
+    <section style={{ background: G.darker, padding: "clamp(60px,10vw,100px) clamp(20px,5vw,40px)" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: "64px" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
             <div style={{ display: "inline-block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: G.light, fontFamily: "'DM Sans', sans-serif", background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)", padding: "4px 12px", borderRadius: "20px", marginBottom: "16px" }}>WHO CLASSIFICATION</div>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", color: G.white, letterSpacing: "-1px", margin: 0 }}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 5vw, 52px)", color: G.white, letterSpacing: "-1px", margin: 0 }}>
               5 <span style={{ color: G.light }}>Nutritional Status</span> Classes
             </h2>
           </div>
         </Reveal>
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {classes.map(({ label, fil, color, bg, desc }, i) => (
             <Reveal key={label} delay={i * 0.07}>
               <div style={{
                 background: bg, border: `1px solid ${color}30`,
-                borderRadius: "14px", padding: "20px 24px",
-                display: "flex", alignItems: "center", gap: "20px",
-                transition: "transform 0.2s",
+                borderRadius: "14px", padding: "18px 20px",
+                display: "flex", alignItems: "flex-start", gap: "16px",
+                transition: "transform 0.2s", flexWrap: "wrap",
               }}
-              onMouseEnter={e => e.currentTarget.style.transform = "translateX(8px)"}
+              onMouseEnter={e => e.currentTarget.style.transform = "translateX(6px)"}
               onMouseLeave={e => e.currentTarget.style.transform = "translateX(0)"}
               >
-                <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: color, flexShrink: 0 }} />
-                <div style={{ flex: "0 0 220px" }}>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "16px", color: G.white }}>{label}</div>
+                <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: color, flexShrink: 0, marginTop: "5px" }} />
+                <div style={{ flex: "0 0 auto", minWidth: "160px" }}>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "clamp(14px,2vw,16px)", color: G.white }}>{label}</div>
                   <div style={{ fontSize: "12px", color, fontFamily: "'DM Sans', sans-serif", fontStyle: "italic" }}>{fil}</div>
                 </div>
-                <div style={{ fontSize: "14px", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6 }}>{desc}</div>
+                <div style={{ fontSize: "clamp(12px,1.8vw,14px)", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6, flex: "1 1 200px" }}>{desc}</div>
               </div>
             </Reveal>
           ))}
@@ -422,16 +488,15 @@ function Classes() {
   );
 }
 
-
 /* ── Team ── */
 function Team() {
   return (
-    <section id="team" style={{ background: G.dark, padding: "100px 40px" }}>
+    <section id="team" style={{ background: G.dark, padding: "clamp(60px,10vw,100px) clamp(20px,5vw,40px)" }}>
       <div style={{ maxWidth: "900px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: "64px" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
             <div style={{ display: "inline-block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: G.light, fontFamily: "'DM Sans', sans-serif", background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)", padding: "4px 12px", borderRadius: "20px", marginBottom: "16px" }}>THE BUILDER</div>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", color: G.white, letterSpacing: "-1px", margin: 0 }}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 5vw, 52px)", color: G.white, letterSpacing: "-1px", margin: 0 }}>
               Behind <span style={{ color: G.light }}>GaanPH</span>
             </h2>
           </div>
@@ -440,56 +505,54 @@ function Team() {
         <Reveal delay={0.1}>
           <div style={{
             background: "rgba(15,110,86,0.07)", border: "1px solid rgba(29,158,117,0.18)",
-            borderRadius: "24px", padding: "48px", display: "flex", gap: "48px", alignItems: "center",
+            borderRadius: "24px", padding: "clamp(24px,5vw,48px)",
+            display: "flex", gap: "clamp(24px,5vw,48px)",
+            alignItems: "flex-start", flexWrap: "wrap",
             transition: "border-color 0.3s",
           }}
           onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(52,211,153,0.35)"}
           onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(29,158,117,0.18)"}
           >
             {/* Avatar */}
-            <div style={{ flexShrink: 0, textAlign: "center" }}>
+            <div style={{ flexShrink: 0, textAlign: "center", width: "100%", maxWidth: "140px", margin: "0 auto" }} className="team-avatar">
               <div style={{
-                width: "120px", height: "120px", borderRadius: "50%",
+                width: "110px", height: "110px", borderRadius: "50%",
                 background: `linear-gradient(135deg, ${G.primary}, ${G.mid})`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "48px", marginBottom: "16px",
+                fontSize: "44px", margin: "0 auto 14px",
                 boxShadow: `0 0 40px rgba(29,158,117,0.3)`,
-              }}>
-                🌿
-              </div>
+              }}>🌿</div>
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: "6px",
                 background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)",
-                borderRadius: "20px", padding: "4px 12px",
+                borderRadius: "20px", padding: "4px 10px",
               }}>
                 <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: G.light, display: "inline-block", animation: "pulse 2s infinite" }} />
-                <span style={{ fontSize: "11px", color: G.light, fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>Open to opportunities</span>
+                <span style={{ fontSize: "10px", color: G.light, fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>Open to opportunities</span>
               </div>
             </div>
 
             {/* Info */}
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "32px", color: G.white, letterSpacing: "-0.5px", marginBottom: "4px" }}>Kian Andrei James</div>
-              <div style={{ fontSize: "14px", color: G.light, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginBottom: "20px", letterSpacing: "0.05em" }}>ML Engineer · Full-Stack Developer · Central Luzon, PH</div>
-              <p style={{ fontSize: "15px", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.8, marginBottom: "28px", maxWidth: "480px" }}>
+            <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(22px,4vw,32px)", color: G.white, letterSpacing: "-0.5px", marginBottom: "4px" }}>Kian Andrei James</div>
+              <div style={{ fontSize: "13px", color: G.light, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginBottom: "18px", letterSpacing: "0.05em" }}>ML Engineer · Full-Stack Developer · Central Luzon, PH</div>
+              <p style={{ fontSize: "clamp(13px,2vw,15px)", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.8, marginBottom: "24px" }}>
                 Built GaanPH from scratch — from the WHO z-score model and Random Forest classifier to the Streamlit UI and Render deployment. Passionate about using machine learning to solve real health problems in the Philippines.
               </p>
 
-              {/* Tags */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "28px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "7px", marginBottom: "24px" }}>
                 {["Python", "Scikit-learn", "Machine Learning", "Streamlit", "WHO Standards", "Filipino Health Tech"].map(tag => (
                   <span key={tag} style={{
                     background: "rgba(15,110,86,0.15)", border: "1px solid rgba(29,158,117,0.2)",
-                    borderRadius: "20px", padding: "4px 12px", fontSize: "12px",
+                    borderRadius: "20px", padding: "4px 11px", fontSize: "12px",
                     color: G.muted, fontFamily: "'DM Sans', sans-serif", fontWeight: 500,
                   }}>{tag}</span>
                 ))}
               </div>
 
-              {/* Built with */}
-              <div style={{ paddingTop: "24px", borderTop: "1px solid rgba(29,158,117,0.12)" }}>
+              <div style={{ paddingTop: "20px", borderTop: "1px solid rgba(29,158,117,0.12)" }}>
                 <div style={{ fontSize: "11px", color: "rgba(155,207,188,0.4)", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, letterSpacing: "0.08em", marginBottom: "12px" }}>WHAT WAS BUILT</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px,1fr))", gap: "10px" }}>
                   {[
                     { icon: "🤖", label: "ML Model", val: "Random Forest, 91% acc." },
                     { icon: "📊", label: "Training Data", val: "8,000 records · NNS 2023" },
@@ -498,7 +561,7 @@ function Team() {
                     <div key={label} style={{ background: "rgba(15,110,86,0.1)", borderRadius: "10px", padding: "12px" }}>
                       <div style={{ fontSize: "18px", marginBottom: "4px" }}>{icon}</div>
                       <div style={{ fontSize: "11px", color: G.light, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, letterSpacing: "0.05em" }}>{label}</div>
-                      <div style={{ fontSize: "12px", color: G.muted, fontFamily: "'DM Sans', sans-serif", marginTop: "2px" }}>{val}</div>
+                      <div style={{ fontSize: "11px", color: G.muted, fontFamily: "'DM Sans', sans-serif", marginTop: "2px" }}>{val}</div>
                     </div>
                   ))}
                 </div>
@@ -515,33 +578,31 @@ function Team() {
 function CTA() {
   return (
     <section style={{
-      padding: "100px 40px",
+      padding: "clamp(60px,10vw,100px) clamp(20px,5vw,40px)",
       background: `radial-gradient(ellipse 70% 80% at 50% 50%, rgba(15,110,86,0.2) 0%, transparent 70%), ${G.dark}`,
     }}>
       <Reveal>
         <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontSize: "48px", marginBottom: "20px" }}>🌿</div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 5vw, 56px)", color: G.white, letterSpacing: "-1.5px", margin: "0 0 20px", lineHeight: 1.1 }}>
+          <div style={{ fontSize: "44px", marginBottom: "18px" }}>🌿</div>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 5vw, 56px)", color: G.white, letterSpacing: "-1.5px", margin: "0 0 18px", lineHeight: 1.1 }}>
             Start screening<br /><span style={{ color: G.light }}>right now.</span>
           </h2>
-          <p style={{ fontSize: "17px", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7, marginBottom: "40px" }}>
+          <p style={{ fontSize: "clamp(14px,2vw,17px)", color: G.muted, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7, marginBottom: "36px" }}>
             Free. No download required. Works on any browser or mobile device. Built for BHWs, RHUs, and parents across the Philippines.
           </p>
           <a href={APP_URL} target="_blank" rel="noreferrer" style={{
             display: "inline-flex", alignItems: "center", gap: "10px",
             background: `linear-gradient(135deg, ${G.primary}, ${G.mid})`,
-            color: G.white, padding: "18px 44px", borderRadius: "14px",
-            fontSize: "18px", fontWeight: 700, textDecoration: "none",
+            color: G.white, padding: "16px clamp(28px,5vw,44px)", borderRadius: "14px",
+            fontSize: "clamp(15px,2.5vw,18px)", fontWeight: 700, textDecoration: "none",
             fontFamily: "'DM Sans', sans-serif",
             boxShadow: `0 12px 48px rgba(15,110,86,0.4)`,
             transition: "transform 0.2s, box-shadow 0.2s",
           }}
           onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 20px 60px rgba(15,110,86,0.5)`; }}
           onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 12px 48px rgba(15,110,86,0.4)`; }}
-          >
-            🔍 Screen a Child — Free
-          </a>
-          <div style={{ marginTop: "24px", fontSize: "13px", color: "rgba(155,207,188,0.5)", fontFamily: "'DM Sans', sans-serif" }}>
+          >🔍 Screen a Child — Free</a>
+          <div style={{ marginTop: "22px", fontSize: "12px", color: "rgba(155,207,188,0.5)", fontFamily: "'DM Sans', sans-serif" }}>
             Based on WHO Child Growth Standards · Data: 2023 NNS (FNRI-DOST) · For children aged 0–5 years
           </div>
         </div>
@@ -553,15 +614,15 @@ function CTA() {
 /* ── Footer ── */
 function Footer() {
   return (
-    <footer style={{ background: G.darker, borderTop: "1px solid rgba(29,158,117,0.1)", padding: "40px", textAlign: "center" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "12px" }}>
+    <footer style={{ background: G.darker, borderTop: "1px solid rgba(29,158,117,0.1)", padding: "36px clamp(20px,5vw,40px)", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "10px" }}>
         <span style={{ fontSize: "18px" }}>🌿</span>
         <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "16px", color: G.white }}>Gaan<span style={{ color: G.light }}>PH</span></span>
       </div>
-      <p style={{ fontSize: "13px", color: "rgba(155,207,188,0.4)", fontFamily: "'DM Sans', sans-serif", margin: "0 0 8px" }}>
+      <p style={{ fontSize: "12px", color: "rgba(155,207,188,0.4)", fontFamily: "'DM Sans', sans-serif", margin: "0 0 7px" }}>
         Child Nutrition Screening · WHO Growth Standards · 2023 NNS (FNRI-DOST) · Made for the Philippines
       </p>
-      <p style={{ fontSize: "12px", color: "rgba(155,207,188,0.25)", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>
+      <p style={{ fontSize: "11px", color: "rgba(155,207,188,0.25)", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>
         ⚕️ Screening tool only. Not a substitute for professional medical diagnosis. DOH Hotline: 1-800-10-364-4364
       </p>
     </footer>
@@ -576,10 +637,28 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { background: ${G.darker}; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: ${G.darker}; }
-        ::-webkit-scrollbar-thumb { background: ${G.primary}; border-radius: 3px; }
+        body { background: #03130f; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #03130f; }
+        ::-webkit-scrollbar-thumb { background: #0f6e56; border-radius: 3px; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* Desktop nav / hamburger toggle */
+        .nav-desktop { display: flex; }
+        .nav-hamburger { display: none; }
+
+        /* Hero mockup hidden on narrow screens */
+        .hero-mockup { display: block; }
+
+        @media (max-width: 768px) {
+          .nav-desktop { display: none; }
+          .nav-hamburger { display: flex; }
+          .hero-mockup { display: none; }
+        }
+
+        @media (max-width: 480px) {
+          .team-avatar { max-width: 100% !important; }
+        }
       `}</style>
       <Nav />
       <Hero />
