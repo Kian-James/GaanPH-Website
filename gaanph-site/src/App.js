@@ -103,7 +103,7 @@ function Nav() {
           aria-label="Toggle menu"
           style={{
             background: "none", border: "none", cursor: "pointer",
-            display: "flex", flexDirection: "column", gap: "5px",
+            display: "none", flexDirection: "column", gap: "5px",
             padding: "8px",
           }}>
           {[0, 1, 2].map(i => (
@@ -131,7 +131,7 @@ function Nav() {
         transition: "max-height 0.35s ease, padding 0.35s ease",
         borderBottom: open ? "1px solid rgba(29,158,117,0.15)" : "none",
       }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div style={{ display: "none", flexDirection: "column", gap: "8px" }}>
           {links.map(l => (
             <a key={l} href={`#${l.toLowerCase().replace(/ /g, "-")}`}
               onClick={() => setOpen(false)}
@@ -652,7 +652,7 @@ export default function App() {
 
         @media (max-width: 768px) {
           .nav-desktop { display: none; }
-          .nav-hamburger { display: flex; }
+          .nav-hamburger { display: flex !important; }
           .hero-mockup { display: none; }
         }
 
