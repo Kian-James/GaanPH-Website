@@ -243,13 +243,13 @@ function About() {
             <span style={{ color: G.light }}>are stunted.</span>
           </h2>
           <p style={{ fontSize: "17px", color: G.muted, lineHeight: 1.8, maxWidth: "600px", fontFamily: "'DM Sans', sans-serif", margin: "0 0 60px" }}>
-            According to the FNRI and DOH, malnutrition remains one of the most severe child health problems in the Philippines — especially in rural provinces and BARMM. Health workers urgently need a simple, reliable tool to detect it early.
+            According to the 2023 National Nutrition Survey (NNS) by FNRI-DOST, malnutrition remains one of the most severe child health problems in the Philippines — especially in rural provinces and BARMM. Health workers urgently need a simple, reliable tool to detect it early.
           </p>
         </Reveal>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
           {[
-            { icon: "📊", stat: "31.8%", label: "of children under 5 are stunted", source: "FNRI 2023" },
+            { icon: "📊", stat: "31.8%", label: "of children under 5 are stunted", source: "NNS 2023 · FNRI-DOST" },
             { icon: "🏥", stat: "~6,500", label: "barangay health centers lack a digital screening tool", source: "DOH data" },
             { icon: "⏱️", stat: "<2 min", label: "to screen a child using GaanPH", source: "GaanPH" },
           ].map(({ icon, stat, label, source }) => (
@@ -278,7 +278,7 @@ function About() {
 /* ── Features ── */
 function Features() {
   const features = [
-    { icon: "🤖", title: "Machine Learning", sub: "Powered by Random Forest", desc: "Trained on 8,000 records modeled on Philippine regional malnutrition patterns. BARMM, Regions VIII, V, and XII carry higher risk weighting that mirrors real DOH data." },
+    { icon: "🤖", title: "Machine Learning", sub: "Powered by Random Forest", desc: "Trained on 8,000 records modeled on 2023 NNS (FNRI-DOST) regional malnutrition patterns. BARMM, Regions VIII, V, and XII carry higher risk weighting that mirrors real DOH survey data." },
     { icon: "📐", title: "WHO Z-Score Standards", sub: "HAZ · WAZ · WHZ", desc: "Computes all three WHO growth indicators simultaneously: Height-for-Age, Weight-for-Age, and Weight-for-Height — the same metrics used by the DOH and UNICEF." },
     { icon: "🇵🇭", title: "Filipino-First Design", sub: "Bilingual interface", desc: "Every label, result, and recommendation is bilingual. Designed specifically for barangay health workers and rural health units who serve Filipino families." },
     { icon: "🏥", title: "5 Nutritional Classes", sub: "Normal to Severe", desc: "Classifies into Normal, Stunted, Underweight, Wasted, and Severely Malnourished — each with a plain-language explanation and specific recommended action steps." },
@@ -329,8 +329,8 @@ function Features() {
 function HowItWorks() {
   const steps = [
     { n: "01", title: "Enter the child's information", desc: "Age, sex, height, weight, region, and a few additional inputs like birth weight and daily meal frequency." },
-    { n: "02", title: "WHO Z-scores are computed", desc: "GaanPH automatically calculates HAZ, WAZ, and WHZ using the WHO 2006 Child Growth Standards." },
-    { n: "03", title: "The Random Forest model analyzes", desc: "The model trained on 8,000 records assesses nutritional status based on all inputs including regional risk factors." },
+    { n: "02", title: "WHO Z-scores are computed", desc: "GaanPH automatically calculates HAZ, WAZ, and WHZ using the WHO Child Growth Standards (0–5 years)." },
+    { n: "03", title: "The Random Forest model analyzes", desc: "The model — trained on 8,000 records reflecting 2023 NNS regional patterns — assesses nutritional status based on all inputs including regional risk factors." },
     { n: "04", title: "See results and recommendations", desc: "The nutritional status, z-score breakdown, plain-language explanation, and concrete next steps appear instantly for the health worker or parent." },
   ];
 
@@ -492,7 +492,7 @@ function Team() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
                   {[
                     { icon: "🤖", label: "ML Model", val: "Random Forest, 91% acc." },
-                    { icon: "📊", label: "Training Data", val: "8,000 synthetic records" },
+                    { icon: "📊", label: "Training Data", val: "8,000 records · NNS 2023" },
                     { icon: "🌿", label: "UI", val: "Streamlit, bilingual" },
                   ].map(({ icon, label, val }) => (
                     <div key={label} style={{ background: "rgba(15,110,86,0.1)", borderRadius: "10px", padding: "12px" }}>
@@ -542,7 +542,7 @@ function CTA() {
             🔍 Screen a Child — Free
           </a>
           <div style={{ marginTop: "24px", fontSize: "13px", color: "rgba(155,207,188,0.5)", fontFamily: "'DM Sans', sans-serif" }}>
-            Based on WHO 2006 Child Growth Standards · For children aged 0–5 years
+            Based on WHO Child Growth Standards · Data: 2023 NNS (FNRI-DOST) · For children aged 0–5 years
           </div>
         </div>
       </Reveal>
@@ -559,7 +559,7 @@ function Footer() {
         <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "16px", color: G.white }}>Gaan<span style={{ color: G.light }}>PH</span></span>
       </div>
       <p style={{ fontSize: "13px", color: "rgba(155,207,188,0.4)", fontFamily: "'DM Sans', sans-serif", margin: "0 0 8px" }}>
-        Child Nutrition Screening · WHO Growth Standards · Made for the Philippines
+        Child Nutrition Screening · WHO Growth Standards · 2023 NNS (FNRI-DOST) · Made for the Philippines
       </p>
       <p style={{ fontSize: "12px", color: "rgba(155,207,188,0.25)", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>
         ⚕️ Screening tool only. Not a substitute for professional medical diagnosis. DOH Hotline: 1-800-10-364-4364
